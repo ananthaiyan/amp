@@ -139,7 +139,7 @@ const Scene = () => {
   )
 }
 
-export default function Component() {
+export default function Home() {
   return (
     <div className="w-full h-screen bg-gray-900 relative">
       <Canvas camera={{ position: [12, 0, -13], fov: 50 }}>

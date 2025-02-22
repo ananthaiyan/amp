@@ -1,23 +1,22 @@
-"use client";
+"use client"
 
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Environment } from "@react-three/drei";
-import { useRef, useState, useEffect } from "react";
-import * as THREE from "three";
+import { Canvas } from "@react-three/fiber"
+import { OrbitControls, Environment } from "@react-three/drei"
+import { useState, useEffect } from "react"
+import * as THREE from "three"
 
-const isMobile = (): boolean => {
-  if (typeof window === "undefined") return false;
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-};
-
+const isMobile = () => {
+  if (typeof window === "undefined") return false
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+}
 interface Position {
   position: [number, number, number];
 }
 
 const BoxWithEdges: React.FC<Position> = ({ position }) => (
-  <group position={position}>
-    <mesh>
-    <boxGeometry args={[0.5, 0.5, 0.5]} />
+    <group position={position}>
+      <mesh>
+        <boxGeometry args={[0.5, 0.5, 0.5]} />
         <meshPhysicalMaterial
           color="#ff4500"
           roughness={0.2}
@@ -27,18 +26,18 @@ const BoxWithEdges: React.FC<Position> = ({ position }) => (
           transmission={0.3}
           clearcoat={1}
         />
-    </mesh>
-    <lineSegments>
+      </mesh>
+      <lineSegments>
       <edgesGeometry args={[new THREE.BoxGeometry(0.5, 0.5, 0.5)]} />
       <lineBasicMaterial color="#ffa500" linewidth={2} />
     </lineSegments>
-  </group>
-);
+    </group>
+  )
 
-interface BoxLetterProps {
-  letter: string;
-  position: [number, number, number];
-}
+  interface BoxLetterProps {
+    letter: string;
+    position: [number, number, number];
+  }
 
 const BoxLetter: React.FC<BoxLetterProps> = ({ letter, position }) => {
   const getLetterShape = (letter: string): number[][] => {
@@ -78,40 +77,56 @@ const BoxLetter: React.FC<BoxLetterProps> = ({ letter, position }) => {
         [1, 0, 0, 0, 1],
         [0, 1, 1, 1, 0],
       ],
-    };
-    return shapes[letter] || shapes["A"];
-  };
+    }
+    return shapes[letter] || shapes["A"]
+  }
 
-  const letterShape: number[][] = getLetterShape(letter);
+  const letterShape = getLetterShape(letter)
 
   return (
     <group position={position}>
-      {letterShape.map((row: number[], i: number) =>
-        row.map((cell: number, j: number) =>
-          cell ? <BoxWithEdges key={`${i}-${j}`} position={[j * 0.5 - 1, (4 - i) * 0.5 - 1, 0]} /> : null
-        )
+      {letterShape.map((row, i) => row.map((cell, j) => {
+        if (cell) {
+          const xOffset = j * 0.5 - (letter === "1" ? 0.5 : 1)
+          return <BoxWithEdges key={`${i}-${j}`} position={[xOffset, (4 - i) * 0.5 - 1, 0]} />
+        }
+        return null
+      })
       )}
     </group>
-  );
-};
+  )
+}
 
-const Scene: React.FC = () => {
-  const [isMobileDevice, setIsMobileDevice] = useState<boolean>(false);
+const Scene = () => {
+  
+  const [isMobileDevice, setIsMobileDevice] = useState(false)
 
   useEffect(() => {
-    setIsMobileDevice(isMobile());
-  }, []);
+    setIsMobileDevice(isMobile())
+  }, [])
 
   return (
     <>
-      <group position={[-1.5, 0, 0]} rotation={[0, Math.PI / 1.8, 0]}>
-        {["A", "M", "P", "1", "8"].map((letter, index) => (
-          <BoxLetter key={letter} letter={letter} position={[index * 2.5 - 5, 0, 0]} />
-        ))}
+      <group position={[-0.5, 0, 0]} rotation={[0, Math.PI / 1.5, 0]}>
+        <BoxLetter letter="A" position={[-4.5, 0, 0]} />
+        <BoxLetter letter="M" position={[-2.25, 0, 0]} />
+        <BoxLetter letter="P" position={[0, 0, 0]} />
+        <BoxLetter letter="1" position={[2.25, 0, 0]} />
+        <BoxLetter letter="8" position={[4.5, 0, 0]} />
       </group>
-      <OrbitControls autoRotate autoRotateSpeed={1.2} enableZoom={false} />
-      <ambientLight intensity={0.7} />
-      <directionalLight position={[5, 5, 5]} intensity={0.8} />
+      <OrbitControls
+      
+        enableZoom
+        enablePan
+        enableRotate
+        autoRotate
+        autoRotateSpeed={1.5}
+      />
+
+      <ambientLight intensity={0.6} />
+
+      <directionalLight position={[5, 5, 5]} intensity={0.7} color="#ffffff" />
+
       <Environment
         files={
           isMobileDevice
@@ -121,25 +136,29 @@ const Scene: React.FC = () => {
         background
       />
     </>
-  );
-};
+  )
+}
 
 export default function Component() {
   return (
-    <div className="w-full h-full bg-gray-900 ">
-      <Canvas camera={{ position: [10, 0, -12], fov: 50 }}>
+    <div className="w-full h-screen bg-gray-900 relative">
+      <Canvas camera={{ position: [12, 0, -13], fov: 50 }}>
         <Scene />
       </Canvas>
-      {/* <div className="absolute bottom-0 left-0 right-0 text-center p-6 bg-black/80 backdrop-blur-md shadow-lg">
-        <h1 className="text-2xl font-bold text-white tracking-wide mb-3">AMP18 Events</h1>
-        <div className="text-xl font-semibold text-white animate-pulse">
+      <div className="absolute bottom-0 left-0 right-0 text-center p-8 bg-gradient-to-t from-black via-black/70 to-transparent backdrop-blur-md shadow-lg">
+        <h1 className="text-xl font-bold text-white tracking-wide mb-3 drop-shadow-lg">
+          AMP18 Events
+        </h1>
+        <div className="text-3xl font-semibold text-white drop-shadow-md">
           Coming Soon: <span className="text-red-500">Blinding Nights-Chennai 1.0</span>
         </div>
-        <p className="mt-3 text-lg text-gray-300">Get ready for an electrifying experience like never before!</p>
-        <button className="mt-4 px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-full shadow-md transition-all duration-300">
+        <p className="mt-4 text-lg text-gray-300 opacity-80">
+          Get ready for an electrifying experience like never before!
+        </p>
+        <button className="mt-6 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-full shadow-md transition-all duration-300">
           Stay Notified
         </button>
-      </div> */}
+      </div>
     </div>
-  );
+  )
 }
