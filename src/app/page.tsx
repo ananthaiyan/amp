@@ -2,7 +2,7 @@
 
 import { Canvas } from "@react-three/fiber"
 import { OrbitControls, Environment } from "@react-three/drei"
-import { useRef, useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import * as THREE from "three"
 
 const isMobile = () => {
